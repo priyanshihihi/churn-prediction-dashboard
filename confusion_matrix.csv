@@ -1,0 +1,5 @@
+category,count,meaning
+True Negative,772,Correctly said: will NOT churn
+False Positive,261,Wrongly said: will churn
+False Negative,91,Missed: actually did churn
+True Positive,283,Correctly said: will churn
