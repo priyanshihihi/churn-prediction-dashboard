@@ -1,4 +1,4 @@
-# 📉 Customer Churn Prediction Dashboard
+# Customer Churn Prediction Dashboard
 
 An end-to-end **Customer Churn Prediction system** built on real Telco customer data, combining **Python, MySQL, Machine Learning, and Power BI** into a complete data analytics pipeline.
 
@@ -6,7 +6,7 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 
 ---
 
-## 📊 Dashboard Pages
+## Dashboard Pages
 
 | Page | What it shows |
 |------|--------------|
@@ -18,7 +18,7 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 
 ---
 
-## 🗃️ SQL Queries Used
+## SQL Queries Used
 
 All queries were run in **MySQL Workbench** against the `churn_db` database.
 
@@ -102,7 +102,7 @@ FROM customers;
 
 ---
 
-## 📐 DAX Measures Used in Power BI
+## DAX Measures Used in Power BI
 
 ```dax
 Total Customers = COUNTROWS(churn_predictions)
@@ -136,7 +136,7 @@ Monthly Revenue at Risk =
 
 ---
 
-## 🤖 Machine Learning Model
+## Machine Learning Model
 
 **Algorithm:** Random Forest Classifier
 
@@ -160,7 +160,7 @@ Monthly Revenue at Risk =
 
 ---
 
-## 🔍 Key Insights
+## Key Insights
 
 - **26.5% overall churn rate**
 - **Electronic check users churn at 45.29%** — highest of all payment methods
@@ -171,7 +171,7 @@ Monthly Revenue at Risk =
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Tool | Purpose |
 |------|---------|
@@ -186,7 +186,7 @@ Monthly Revenue at Risk =
 
 ---
 
-## ⚙️ How to Run
+## How to Run
 
 ```bash
 # 1. Install dependencies
@@ -206,17 +206,17 @@ python train_model.py
 
 ---
 
-## 💡 Business Impact
+## Business Impact
 
 > "By identifying 2,196 High Risk customers before they churn, the business can proactively offer targeted retention incentives — potentially saving $41,700+ in monthly recurring revenue."
 
 ---
 
-## 👩‍💻 Author
+## Author
 
 **Priyanshi** — B.Tech Computer Science (Blockchain), Presidency University Bangalore
 GitHub: [@priyanshihihi](https://github.com/priyanshihihi)
 
-## 📄 Preview
+## Preview
 
-📊 [View Dashboard Preview (PDF)](./churn_dashboard.pdf)
+[View Dashboard Preview (PDF)](./churn_dashboard.pdf)
