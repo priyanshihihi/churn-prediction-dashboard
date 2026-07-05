@@ -1,6 +1,6 @@
 # 📉 Customer Churn Prediction Dashboard
 
-An end-to-end **Customer Churn Prediction system** built on real Telco customer data, combining **Python, MySQL, Machine Learning, and Power BI** into a complete data analytics pipeline — with AI-powered insights to identify customers at risk of leaving before they actually do.
+An end-to-end **Customer Churn Prediction system** built on real Telco customer data, combining **Python, MySQL, Machine Learning, and Power BI** into a complete data analytics pipeline.
 
 > Built as a portfolio project targeting Data Analyst roles. Demonstrates the full DA workflow: data sourcing → SQL analysis → ML modelling → interactive dashboard.
 
@@ -18,22 +18,127 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 
 ---
 
+## 🗃️ SQL Queries Used
+
+All queries were run in **MySQL Workbench** against the `churn_db` database.
+
+### 1. Overall Churn Rate
+```sql
+SELECT 
+    COUNT(*) as total_customers,
+    SUM(Churn_Binary) as churned,
+    ROUND(AVG(Churn_Binary) * 100, 2) as churn_rate_pct
+FROM customers;
+```
+
+### 2. Churn Rate by Contract Type
+```sql
+SELECT 
+    Contract,
+    COUNT(*) as total,
+    SUM(Churn_Binary) as churned,
+    ROUND(AVG(Churn_Binary) * 100, 2) as churn_rate_pct
+FROM customers
+GROUP BY Contract
+ORDER BY churn_rate_pct DESC;
+```
+
+### 3. Churn Rate by Internet Service
+```sql
+SELECT 
+    InternetService,
+    COUNT(*) as total,
+    SUM(Churn_Binary) as churned,
+    ROUND(AVG(Churn_Binary) * 100, 2) as churn_rate_pct
+FROM customers
+GROUP BY InternetService
+ORDER BY churn_rate_pct DESC;
+```
+
+### 4. Churn Rate by Payment Method
+```sql
+SELECT 
+    PaymentMethod,
+    COUNT(*) as total,
+    SUM(Churn_Binary) as churned,
+    ROUND(AVG(Churn_Binary) * 100, 2) as churn_rate_pct
+FROM customers
+GROUP BY PaymentMethod
+ORDER BY churn_rate_pct DESC;
+```
+
+### 5. Avg Charges — Churned vs Retained
+```sql
+SELECT 
+    Churn,
+    ROUND(AVG(MonthlyCharges), 2) as avg_monthly_charges,
+    ROUND(AVG(tenure), 1) as avg_tenure_months,
+    ROUND(AVG(TotalCharges), 2) as avg_total_charges
+FROM customers
+GROUP BY Churn;
+```
+
+### 6. Senior vs Non-Senior Churn
+```sql
+SELECT 
+    CASE WHEN SeniorCitizen = 1 THEN 'Senior' ELSE 'Non-Senior' END as customer_type,
+    COUNT(*) as total,
+    SUM(Churn_Binary) as churned,
+    ROUND(AVG(Churn_Binary) * 100, 2) as churn_rate_pct
+FROM customers
+GROUP BY SeniorCitizen;
+```
+
+### 7. Revenue Impact of Churn
+```sql
+SELECT 
+    ROUND(SUM(MonthlyCharges), 2) as total_monthly_revenue,
+    ROUND(SUM(CASE WHEN Churn_Binary = 1 
+               THEN MonthlyCharges ELSE 0 END), 2) as revenue_lost,
+    ROUND(SUM(CASE WHEN Churn_Binary = 1 
+               THEN MonthlyCharges ELSE 0 END) / SUM(MonthlyCharges) * 100, 2) as pct_at_risk
+FROM customers;
+```
+
+---
+
+## 📐 DAX Measures Used in Power BI
+
+```dax
+Total Customers = COUNTROWS(churn_predictions)
+```
+
+```dax
+Churned Customers = 
+    COUNTROWS(FILTER(churn_predictions, churn_predictions[Churn] = "Yes"))
+```
+
+```dax
+Churn Rate = DIVIDE([Churned Customers], [Total Customers]) * 100
+```
+
+```dax
+High Risk Customers = 
+    COUNTROWS(FILTER(churn_predictions, churn_predictions[risk_segment] = "High Risk"))
+```
+
+```dax
+Avg Churn Probability = AVERAGE(churn_predictions[churn_probability])
+```
+
+```dax
+Monthly Revenue at Risk = 
+    SUMX(
+        FILTER(churn_predictions, churn_predictions[Churn] = "Yes"),
+        churn_predictions[MonthlyCharges]
+    )
+```
+
+---
+
 ## 🤖 Machine Learning Model
 
 **Algorithm:** Random Forest Classifier
-
-**Why Random Forest?**
-- Builds 100 decision trees and combines their votes (majority wins)
-- Handles both numeric and categorical data well
-- Provides feature importance — tells us which factors drive churn most
-- Works well on imbalanced datasets (more non-churners than churners)
-
-**Training approach:**
-- 80% of data used for training (5,625 customers)
-- 20% held out for testing (1,407 customers)
-- `class_weight='balanced'` used to handle churn/non-churn imbalance
-
-### Model Results
 
 | Metric | Value |
 |--------|-------|
@@ -42,7 +147,7 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 | True Positives (churners caught) | 283 |
 | False Negatives (churners missed) | 91 |
 
-### Top Churn Drivers (Feature Importance)
+### Top Churn Drivers
 
 | Rank | Feature | Importance |
 |------|---------|-----------|
@@ -55,15 +160,14 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 
 ---
 
-## 🔍 Key Insights from SQL Analysis
+## 🔍 Key Insights
 
-- **26.5% overall churn rate** — 1,869 out of 7,032 customers churned
+- **26.5% overall churn rate**
 - **Electronic check users churn at 45.29%** — highest of all payment methods
 - **Month-to-month contracts** have the highest churn probability (~58%)
 - **Senior citizens churn at 41.68%** vs 23.65% for non-seniors
 - **$139,130/month revenue at risk** — 30.53% of total monthly revenue
-- **2,196 customers** identified as High Risk (churn probability >60%)
-- Churned customers pay **more per month** ($74.44 avg) but stay **less time** (18 months avg)
+- **2,196 customers** identified as High Risk
 
 ---
 
@@ -78,89 +182,33 @@ An end-to-end **Customer Churn Prediction system** built on real Telco customer 
 | Power BI Desktop | Interactive dashboard |
 | DAX | KPI measures |
 | Kaggle | Real-world dataset source |
-| Git + GitHub | Version control and portfolio hosting |
-
----
-
-## 📁 Project Structure
-
-```
-churn_prediction_project/
-│
-├── explore_data.py              ← Step 1: data exploration and cleaning
-├── load_to_mysql.py             ← Step 2: MySQL database + SQL queries
-├── train_model.py               ← Step 3: Random Forest ML model
-├── churn_dashboard.pbix         ← Power BI dashboard file
-├── churn_dashboard_preview.pdf  ← Dashboard PDF preview
-│
-├── telco_churn.csv              ← original Kaggle dataset
-├── telco_churn_cleaned.csv      ← cleaned dataset
-│
-├── churn_predictions.csv        ← all customers with churn probability scores
-├── model_performance.csv        ← accuracy and AUC metrics
-├── confusion_matrix.csv         ← model prediction breakdown
-├── feature_importance.csv       ← churn driver rankings
-│
-├── churn_by_contract.csv        ← SQL: churn rate by contract type
-├── churn_by_internet.csv        ← SQL: churn rate by internet service
-├── churn_by_payment.csv         ← SQL: churn rate by payment method
-├── churn_by_senior.csv          ← SQL: senior vs non-senior churn
-└── revenue_impact.csv           ← SQL: monthly revenue at risk
-```
+| Git + GitHub | Version control |
 
 ---
 
 ## ⚙️ How to Run
 
-### 1. Get the dataset
-Download from Kaggle: [Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/telco-customer-churn)
-Rename to `telco_churn.csv` and place in the project folder.
-
-### 2. Clean the data
 ```bash
-pip install pandas numpy
+# 1. Install dependencies
+pip install pandas numpy scikit-learn matplotlib seaborn mysql-connector-python
+
+# 2. Clean the data
 python explore_data.py
-```
 
-### 3. Load into MySQL
-```bash
-pip install mysql-connector-python
-# Make sure MySQL is running
+# 3. Load into MySQL (make sure MySQL is running)
 python load_to_mysql.py
-```
 
-### 4. Train the ML model
-```bash
-pip install scikit-learn matplotlib seaborn
+# 4. Train the ML model
 python train_model.py
-```
 
-### 5. Open the dashboard
-Open `churn_dashboard.pbix` in Power BI Desktop.
+# 5. Open churn_dashboard.pbix in Power BI Desktop
+```
 
 ---
 
 ## 💡 Business Impact
 
-> "By identifying the 2,196 High Risk customers before they churn, the business can proactively offer targeted retention incentives. Even retaining 30% of High Risk customers would save approximately $41,700 in monthly recurring revenue."
-
----
-
-## 📈 Pipeline Overview
-
-```
-Kaggle Dataset (real data)
-        ↓
-   Python (clean + explore)
-        ↓
-   MySQL Database (SQL analysis)
-        ↓
-   Random Forest ML Model
-        ↓
-   Churn Probability Scores (per customer)
-        ↓
-   Power BI Dashboard (5 pages)
-```
+> "By identifying 2,196 High Risk customers before they churn, the business can proactively offer targeted retention incentives — potentially saving $41,700+ in monthly recurring revenue."
 
 ---
 
@@ -169,8 +217,6 @@ Kaggle Dataset (real data)
 **Priyanshi** — B.Tech Computer Science (Blockchain), Presidency University Bangalore
 GitHub: [@priyanshihihi](https://github.com/priyanshihihi)
 
----
-
 ## 📄 Preview
 
-📊 [View Dashboard Preview (PDF)](./churn_dashboard_preview.pdf)
+📊 [View Dashboard Preview (PDF)](./churn_dashboard.pdf)
